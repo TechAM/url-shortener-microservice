@@ -8,8 +8,8 @@ const app = express();
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
-app.use(bodyParser.urlencoded({extended:false}))
-// app.use(express.json())
+app.use(bodyParser.urlencoded({extended:false})) //just figured out this is needed when making post requests from a web browser for some reason...
+app.use(express.json()) //... and this is needed for making post requests from POST man for some reason.
 
 app.use(cors());
 
@@ -35,14 +35,20 @@ app.post('/api/shorturl/new', (req, res)=>{
   do{
     short_url = Math.floor(Math.random()*10000)
   }while(short_url in shortUrls)
+  // console.log(short_url)
+
+  // res.json({original_url:"www.original.com", short_url:short_url})
+
+  // console.log(req.body)
   
   let original_url = String(req.body.url)
   let truncated_url = original_url.replace(/^https?:\/\//ig, "")
+  console.log("ORIGINAL URL: " + original_url)
   console.log("TRUNCATED URL: " + truncated_url)
 
   dns.lookup(truncated_url, (err, address, family)=>{
     if(err){
-      console.log(err)
+      console.error(err)
       res.json({message:"invalid url"})
     }else{
       shortUrls[short_url] = original_url
