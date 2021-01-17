@@ -55,33 +55,12 @@ app.post('/api/shorturl/new', async (req, res)=>{
 
       try {
         const newUrl = await url.save();
-        res.json(newUrl);
+        res.json({original_url, short_url:newUrl._id});
       } catch (e) {
         res.json({ message: e.message });
       }
     }
   })
-
-  // dns.lookup(truncated_url, (err, address, family)=>{
-  //   if(err){
-  //     res.json({message:"invalid url"})
-  //   }else{
-  //     const url = new URL({original_url})
-  //     console.log("NEW URL OBJECT TO BE SAVED: " + url)
-  //     url.save((err, data)=>{
-  //       if(err) res.status(500).json({message:"oops, something went wrong"})
-  //       res.json({original_url})
-  //     })
-
-  //     try{
-  //       const newUrl = await url.save()
-  //       res.json(newUrl)
-  //     }catch(e){
-  //       res.json({message:e.message})
-  //     }
-
-  //   }
-  // })
  
 })
 
