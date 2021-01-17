@@ -3,7 +3,21 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const cors = require('cors');
 const dns = require('dns')
+const mongoose = require('mongoose')
 const app = express();
+
+mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true})
+const urlSchema = new mongoose.Schema({
+  original_url: {
+    type: String
+  }
+  // short_url: {
+  //   type: String,
+  //   unique: true
+  // }
+})
+const URL = mongoose.model('URL', urlSchema)
+
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -24,51 +38,60 @@ app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-const shortUrls = {
-  /*
-    store urls and short urls here
-  */
-}
 
-app.post('/api/shorturl/new', (req, res)=>{
-  let short_url
-  do{
-    short_url = Math.floor(Math.random()*10000)
-  }while(short_url in shortUrls)
-  // console.log(short_url)
-
+app.post('/api/shorturl/new', async (req, res)=>{
   // res.json({original_url:"www.original.com", short_url:short_url})
-
-  // console.log(req.body)
   
   let original_url = String(req.body.url)
   let truncated_url = original_url.replace(/^https?:\/\//ig, "")
-  console.log("ORIGINAL URL: " + original_url)
-  console.log("TRUNCATED URL: " + truncated_url)
+  // console.log("ORIGINAL URL: " + original_url)
+  // console.log("TRUNCATED URL: " + truncated_url)
 
-  dns.lookup(truncated_url, (err, address, family)=>{
-    if(err){
-      console.error(err)
-      res.json({message:"invalid url"})
-    }else{
-      shortUrls[short_url] = original_url
-      console.log(shortUrls)
-      res.json({
-        original_url,
-        short_url
-      })
+  dns.lookup(truncated_url, async (err, address, family) => {
+    if (err) {
+      res.json({ message: "invalid url" });
+    } else {
+      const url = new URL({ original_url });
+
+      try {
+        const newUrl = await url.save();
+        res.json(newUrl);
+      } catch (e) {
+        res.json({ message: e.message });
+      }
     }
   })
+
+  // dns.lookup(truncated_url, (err, address, family)=>{
+  //   if(err){
+  //     res.json({message:"invalid url"})
+  //   }else{
+  //     const url = new URL({original_url})
+  //     console.log("NEW URL OBJECT TO BE SAVED: " + url)
+  //     url.save((err, data)=>{
+  //       if(err) res.status(500).json({message:"oops, something went wrong"})
+  //       res.json({original_url})
+  //     })
+
+  //     try{
+  //       const newUrl = await url.save()
+  //       res.json(newUrl)
+  //     }catch(e){
+  //       res.json({message:e.message})
+  //     }
+
+  //   }
+  // })
  
 })
 
 app.get('/api/shorturl/:url', (req, res)=>{
-  let short_url = req.params.url
-  if(short_url in shortUrls){
-    res.redirect(shortUrls[short_url])
-  }else{
-    res.status(404).json({message: "Invalid short url"})
-  }
+  URL.findById(req.params.url, (err, urlDoc)=>{
+    if(err) res.json({message:"invalid short url"})
+
+    console.log(urlDoc.original_url)
+    res.redirect(urlDoc.original_url)
+  })
 })
 
 app.listen(port, function() {
