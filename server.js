@@ -1,4 +1,4 @@
-// require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser')
 const cors = require('cors');
@@ -41,26 +41,31 @@ app.get('/api/hello', function(req, res) {
 
 app.post('/api/shorturl/new', async (req, res)=>{
   // res.json({original_url:"www.original.com", short_url:short_url})
-  
-  let original_url = String(req.body.url)
-  let truncated_url = original_url.replace(/^https?:\/\//ig, "")
-  console.log("ORIGINAL URL: " + original_url)
-  console.log("TRUNCATED URL: " + truncated_url)
 
-  dns.lookup(truncated_url, async (err, address, family) => {
-    if (err) {
-      res.json({ message: "invalid url" });
-    } else {
-      const url = new URL({ original_url });
-
-      try {
-        const newUrl = await url.save();
-        res.json({original_url, short_url:newUrl._id});
-      } catch (e) {
-        res.json({ message: e.message });
-      }
-    }
+  res.json({
+    original_url:"ORIGINAL MOTHERFUCKING URL CUNT",
+    short_url: "SHORT MOTHERGUCKING URL YOU CUNT PLEASE WORK"
   })
+
+  // let original_url = String(req.body.url)
+  // let truncated_url = original_url.replace(/^https?:\/\//ig, "")
+  // console.log("ORIGINAL URL: " + original_url)
+  // console.log("TRUNCATED URL: " + truncated_url)
+
+  // dns.lookup(truncated_url, async (err, address, family) => {
+  //   if (err) {
+  //     res.json({ message: "invalid url" });
+  //   } else {
+  //     const url = new URL({ original_url });
+
+  //     try {
+  //       const newUrl = await url.save();
+  //       res.json({original_url, short_url:newUrl._id});
+  //     } catch (e) {
+  //       res.json({ message: e.message });
+  //     }
+  //   }
+  // })
  
 })
 
