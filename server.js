@@ -46,7 +46,7 @@ app.post('/api/shorturl/new', async (req, res)=>{
 
   let original_url = String(req.body.url)
   res.json({
-    original_url:"ORIGINAL MOTHERFUCKING URL CUNT",
+    original_url,
     short_url: "SHORT MOTHERGUCKING URL YOU CUNT PLEASE WORK"
   })
   // let truncated_url = original_url.replace(/^https?:\/\//ig, "")
