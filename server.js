@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser')
 const cors = require('cors');
@@ -44,8 +44,8 @@ app.post('/api/shorturl/new', async (req, res)=>{
   
   let original_url = String(req.body.url)
   let truncated_url = original_url.replace(/^https?:\/\//ig, "")
-  // console.log("ORIGINAL URL: " + original_url)
-  // console.log("TRUNCATED URL: " + truncated_url)
+  console.log("ORIGINAL URL: " + original_url)
+  console.log("TRUNCATED URL: " + truncated_url)
 
   dns.lookup(truncated_url, async (err, address, family) => {
     if (err) {
