@@ -23,7 +23,7 @@ const URL = mongoose.model('URL', urlSchema)
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({extended:false})) //just figured out this is needed when making post requests from a web browser for some reason...
-app.use(express.json()) //... and this is needed for making post requests from POST man for some reason.
+// app.use(express.json()) //... and this is needed for making post requests from POST man for some reason.
 
 app.use(cors());
 
