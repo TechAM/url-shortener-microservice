@@ -6,17 +6,17 @@ const dns = require('dns')
 const mongoose = require('mongoose')
 const app = express();
 
-mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true})
-const urlSchema = new mongoose.Schema({
-  original_url: {
-    type: String
-  }
-  // short_url: {
-  //   type: String,
-  //   unique: true
-  // }
-})
-const URL = mongoose.model('URL', urlSchema)
+// mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true})
+// const urlSchema = new mongoose.Schema({
+//   original_url: {
+//     type: String
+//   }
+//   // short_url: {
+//   //   type: String,
+//   //   unique: true
+//   // }
+// })
+// const URL = mongoose.model('URL', urlSchema)
 
 
 // Basic Configuration
@@ -39,10 +39,8 @@ app.get('/api/hello', function(req, res) {
 });
 
 
-app.post('/api/shorturl/new', async (req, res)=>{
+app.post('/api/shorturl/new', (req, res)=>{
   // res.json({original_url:"www.original.com", short_url:short_url})
-
-
 
   let original_url = String(req.body.url)
   res.json({
