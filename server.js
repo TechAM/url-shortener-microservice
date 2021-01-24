@@ -16,7 +16,7 @@ const urlSchema = new mongoose.Schema({
   //   unique: true
   // }
 })
-const URL = mongoose.model('URL', urlSchema)
+const URLModel = mongoose.model('URLModel', urlSchema)
 
 
 // Basic Configuration
