@@ -6,7 +6,7 @@ const dns = require('dns')
 const mongoose = require('mongoose')
 const app = express();
 
-mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: false})
+mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true})
 const urlSchema = new mongoose.Schema({
   original_url: {
     type: String
@@ -16,6 +16,10 @@ const urlSchema = new mongoose.Schema({
   //   unique: true
   // }
 })
+// OK FINALLY FIGURED OUT WHY THE APP KEPT CRASHING WHEN TRYING TO RUN THE FCC TESTS
+// FOR SOME DUMBASS REASON, USING THE MODEL NAME 'URL' WAS CAUSING THE ERROR
+// SO I'VE CHANGED IT TO URLMODEL
+// FUCKING HELL 
 const URLModel = mongoose.model('URLModel', urlSchema)
 
 
@@ -23,7 +27,7 @@ const URLModel = mongoose.model('URLModel', urlSchema)
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({extended:false})) //just figured out this is needed when making post requests from a web browser for some reason...
-// app.use(express.json()) //... and this is needed for making post requests from POST man for some reason.
+app.use(express.json()) //... and this is needed for making post requests from POST man for some reason.
 
 app.use(cors());
 
@@ -39,37 +43,34 @@ app.get('/api/hello', function(req, res) {
 });
 
 
-app.post('/api/shorturl/new', (req, res)=>{
+app.post('/api/shorturl/new', async (req, res)=>{
   // res.json({original_url:"www.original.com", short_url:short_url})
 
   let original_url = String(req.body.url)
-  res.json({
-    original_url,
-    short_url: "SHORT MOTHERGUCKING URL YOU CUNT PLEASE WORK"
+  let truncated_url = original_url.replace(/^https?:\/\//ig, "")
+  console.log("ORIGINAL URL: " + original_url)
+  console.log("TRUNCATED URL: " + truncated_url)
+
+  dns.lookup(truncated_url, async (err, address, family) => {
+    if (err) {
+      res.json({ message: "invalid url" });
+    } else {
+      const url = new URLModel({ original_url });
+      console.log(url)
+
+      try {
+        const newUrl = await url.save();
+        res.json({original_url, short_url:newUrl._id});
+      } catch (e) {
+        res.json({ message: e.message });
+      }
+    }
   })
-  // let truncated_url = original_url.replace(/^https?:\/\//ig, "")
-  // console.log("ORIGINAL URL: " + original_url)
-  // console.log("TRUNCATED URL: " + truncated_url)
-
-  // dns.lookup(truncated_url, async (err, address, family) => {
-  //   if (err) {
-  //     res.json({ message: "invalid url" });
-  //   } else {
-  //     const url = new URL({ original_url });
-
-  //     try {
-  //       const newUrl = await url.save();
-  //       res.json({original_url, short_url:newUrl._id});
-  //     } catch (e) {
-  //       res.json({ message: e.message });
-  //     }
-  //   }
-  // })
  
 })
 
 app.get('/api/shorturl/:url', (req, res)=>{
-  URL.findById(req.params.url, (err, urlDoc)=>{
+  URLModel.findById(req.params.url, (err, urlDoc)=>{
     if(err) res.json({message:"invalid short url"})
 
     console.log(urlDoc.original_url)
