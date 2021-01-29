@@ -48,9 +48,9 @@ app.post('/api/shorturl/new', async (req, res)=>{
   // res.json({original_url:"www.original.com", short_url:short_url})
 
   let original_url = String(req.body.url)
-  // let truncated_url = original_url.replace(/^https?:\/\//ig, "")
+  let truncated_url = original_url.replace(/^[a-zA-Z]+:\/\//ig, "")
   console.log("ORIGINAL URL: " + original_url)
-  // console.log("TRUNCATED URL: " + truncated_url)
+  console.log("TRUNCATED URL: " + truncated_url)
 
   const url = new URLModel({ original_url });
   // try {
@@ -64,8 +64,9 @@ app.post('/api/shorturl/new', async (req, res)=>{
   // OKAY, PRETTY SURE NOW THAT DNS LOOKUP IS THE CULPRIT... BUT WHY???
   // HOW ELSE WILL I VALIDATE URLS???
 
-  dns.lookup(original_url, async (err, address, family) => {
+  dns.lookup(truncated_url, async (err, address, family) => {
     if (err) {
+      console.log(err)
       res.json({ message: "invalid url" });
     } else {
       const url = new URLModel({ original_url });
