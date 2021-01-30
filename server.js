@@ -53,21 +53,30 @@ app.post('/api/shorturl/new', (req, res)=>{
 
   // OKAY, PRETTY SURE NOW THAT DNS LOOKUP IS THE CULPRIT... BUT WHY???
   // HOW ELSE WILL I VALIDATE URLS???
-  dns.lookup(new URL(original_url).hostname, async (err, address, family) => {
+  dns.lookup(new URL(original_url).hostname, (err, address, family) => {
     if (err) {
       console.log(err)
       res.json({ error: "invalid url" });
     } else {
       const url = new URLModel({ original_url });
+      url.save()
+        .then((obj)=>{
+          console.log(obj)
+          res.json({original_url, short_url:obj._id})
+        })
+        .catch((err)=>{
+          console.log(err)
+          res.json({message:err.message})
+        })
 
-      try {
-        const newUrl = await url.save();
-        console.log(newUrl)
+      // try {
+      //   const newUrl = url.save().then();
+      //   console.log(newUrl)
 
-        res.json({original_url, short_url:newUrl._id});
-      } catch (e) {
-        res.json({ message: e.message });
-      }
+      //   res.json({original_url, short_url:newUrl._id});
+      // } catch (e) {
+      //   res.json({ message: e.message });
+      // }
     }
   })
  
