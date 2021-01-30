@@ -53,33 +53,33 @@ app.post('/api/shorturl/new', async (req, res)=>{
   console.log("TRUNCATED URL: " + truncated_url)
 
   const url = new URLModel({ original_url });
-  // try {
-  //   const newUrl = await url.save();
-  //   console.log(url)
-  //   res.json({original_url, short_url:newUrl._id});
-  // } catch (e) {
-  //   res.json({ message: e.message });
-  // }
+  try {
+    const newUrl = await url.save();
+    console.log(url)
+    res.json({original_url, short_url:newUrl._id});
+  } catch (e) {
+    res.json({ message: e.message });
+  }
 
   // OKAY, PRETTY SURE NOW THAT DNS LOOKUP IS THE CULPRIT... BUT WHY???
   // HOW ELSE WILL I VALIDATE URLS???
 
-  dns.lookup(truncated_url, async (err, address, family) => {
-    if (err) {
-      console.log(err)
-      res.json({ message: "invalid url" });
-    } else {
-      const url = new URLModel({ original_url });
-      console.log(url)
+  // dns.lookup(original_url, async (err, address, family) => {
+  //   if (err) {
+  //     console.log(err)
+  //     res.json({ message: "invalid url" });
+  //   } else {
+  //     const url = new URLModel({ original_url });
+  //     console.log(url)
 
-      try {
-        const newUrl = await url.save();
-        res.json({original_url, short_url:newUrl._id});
-      } catch (e) {
-        res.json({ message: e.message });
-      }
-    }
-  })
+  //     try {
+  //       const newUrl = await url.save();
+  //       res.json({original_url, short_url:newUrl._id});
+  //     } catch (e) {
+  //       res.json({ message: e.message });
+  //     }
+  //   }
+  // })
  
 })
 
