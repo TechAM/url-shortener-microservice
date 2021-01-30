@@ -45,7 +45,7 @@ app.get('/api/hello', function(req, res) {
 });
 
 
-app.post('/api/shorturl/new', async (req, res)=>{
+app.post('/api/shorturl/new', (req, res)=>{
   let original_url = String(req.body.url)
   // let truncated_url = original_url.replace(/^[a-zA-Z]+:\/\//ig, "")
   console.log("ORIGINAL URL: " + original_url)
