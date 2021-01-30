@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors');
 const dns = require('dns')
 const mongoose = require('mongoose')
+const validUrl = require('valid-url')
 const app = express();
 
 mongoose.connect(process.env.MONGO_URI,{useNewUrlParser: true, useUnifiedTopology: true})
@@ -48,19 +49,22 @@ app.post('/api/shorturl/new', async (req, res)=>{
   // res.json({original_url:"www.original.com", short_url:short_url})
 
   let original_url = String(req.body.url)
-  let truncated_url = original_url.replace(/^[a-zA-Z]+:\/\//ig, "")
+  // let truncated_url = original_url.replace(/^[a-zA-Z]+:\/\//ig, "")
   console.log("ORIGINAL URL: " + original_url)
-  console.log("TRUNCATED URL: " + truncated_url)
+  // console.log("TRUNCATED URL: " + truncated_url)
 
   const url = new URLModel({ original_url });
-  try {
-    const newUrl = await url.save();
-    console.log(url)
-    res.json({original_url, short_url:newUrl._id});
-  } catch (e) {
-    res.json({ message: e.message });
+  if(validUrl.isUri(original_url)){
+    try {
+      const newUrl = await url.save();
+      console.log(url)
+      res.json({original_url, short_url:newUrl._id});
+    } catch (e) {
+      res.json({ message: e.message });
+    }
+  }else{
+    res.json({message:'invalid url'})
   }
-
   // OKAY, PRETTY SURE NOW THAT DNS LOOKUP IS THE CULPRIT... BUT WHY???
   // HOW ELSE WILL I VALIDATE URLS???
 
