@@ -46,53 +46,30 @@ app.get('/api/hello', function(req, res) {
 
 
 app.post('/api/shorturl/new', async (req, res)=>{
-  // res.json({original_url:"www.original.com", short_url:short_url})
-
   let original_url = String(req.body.url)
   // let truncated_url = original_url.replace(/^[a-zA-Z]+:\/\//ig, "")
   console.log("ORIGINAL URL: " + original_url)
   // console.log("TRUNCATED URL: " + truncated_url)
 
+  // OKAY, PRETTY SURE NOW THAT DNS LOOKUP IS THE CULPRIT... BUT WHY???
+  // HOW ELSE WILL I VALIDATE URLS???
+  dns.lookup(new URL(original_url).hostname, async (err, address, family) => {
+    if (err) {
+      console.log(err)
+      res.json({ error: "invalid url" });
+    } else {
+      const url = new URLModel({ original_url });
 
-  urlExists(original_url, (err, exists)=>{
-    if(!exists){
-      res.json({message:'invalid url'})
-    }else{
       try {
         const newUrl = await url.save();
-        console.log(url)
+        console.log(newUrl)
+
         res.json({original_url, short_url:newUrl._id});
       } catch (e) {
         res.json({ message: e.message });
       }
     }
   })
-
-  // const url = new URLModel({ original_url });
-  // if(validUrl.isUri(original_url)){
-
-  // }else{
-  //   res.json({message:'invalid url'})
-  // }
-  // OKAY, PRETTY SURE NOW THAT DNS LOOKUP IS THE CULPRIT... BUT WHY???
-  // HOW ELSE WILL I VALIDATE URLS???
-
-  // dns.lookup(original_url, async (err, address, family) => {
-  //   if (err) {
-  //     console.log(err)
-  //     res.json({ message: "invalid url" });
-  //   } else {
-  //     const url = new URLModel({ original_url });
-  //     console.log(url)
-
-  //     try {
-  //       const newUrl = await url.save();
-  //       res.json({original_url, short_url:newUrl._id});
-  //     } catch (e) {
-  //       res.json({ message: e.message });
-  //     }
-  //   }
-  // })
  
 })
 
