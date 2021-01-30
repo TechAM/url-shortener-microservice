@@ -55,7 +55,7 @@ app.post('/api/shorturl/new', async (req, res)=>{
 
 
   urlExists(original_url, (err, exists)=>{
-    if(err){
+    if(!exists){
       res.json({message:'invalid url'})
     }else{
       try {
