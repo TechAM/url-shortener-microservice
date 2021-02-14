@@ -45,39 +45,52 @@ let responseObject = {}
 app.post('/api/shorturl/new', (request, response) => {
   let inputUrl = request.body['url']
   
-  let urlRegex = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi)
+  // let urlRegex = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi)
   
-  if(!inputUrl.match(urlRegex)){
-    response.json({error: 'invalid url'})
-    return
-  }
-    
-  responseObject['original_url'] = inputUrl
-  console.log(`original url: ${inputUrl}`)
+  // if(!inputUrl.match(urlRegex)){
+  //   response.json({error: 'invalid url'})
+  //   return
+  // }
+  try{
+    dns.lookup(new URL(inputUrl).hostname, (err, address, family)=>{
+      if(err){
+        response.json({error: 'invalid url'})
   
-  let inputShort = 1
-  
-  URLModel.findOne({})
-        .sort({short_url: 'desc'})
-        .exec((error, result) => {
-          if(!error && result != undefined){
-            inputShort = result.short_url + 1
-          }
-          if(!error){
-            URLModel.findOneAndUpdate(
-              {original_url: inputUrl},
-              {original_url: inputUrl, short_url: inputShort},
-              {new: true, upsert: true },
-              (error, savedUrl)=> {
-                if(!error){
-                  responseObject['short_url'] = savedUrl.short_url
-                  response.json(responseObject)
+      }else{
+        responseObject['original_url'] = inputUrl
+        console.log(`original url: ${inputUrl}`)
+        
+        let inputShort = 1
+        
+        URLModel.findOne({})
+              .sort({short_url: 'desc'})
+              .exec((error, result) => {
+                if(!error && result != undefined){
+                  inputShort = result.short_url + 1
                 }
-              }
-            )
-          }
-  })
-  
+                if(!error){
+                  URLModel.findOneAndUpdate(
+                    {original_url: inputUrl},
+                    {original_url: inputUrl, short_url: inputShort},
+                    {new: true, upsert: true },
+                    (error, savedUrl)=> {
+                      if(!error){
+                        responseObject['short_url'] = savedUrl.short_url
+                        response.json(responseObject)
+                      }
+                    }
+                  )
+                }
+        })
+        
+      }
+    })
+  }catch(e){
+    response.json({error: 'invalid url'})
+  }
+
+    
+
 })
 
 
